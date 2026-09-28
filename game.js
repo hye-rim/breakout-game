@@ -143,7 +143,8 @@ function fit() {
   canvas.width = Math.round(cssW * dpr);
   canvas.height = Math.round(cssH * dpr);
   ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
-  $('col').style.width = cssW + 'px';
+  // 점수판은 판보다 조금 넓어도 된다 (판이 작아지는 짧은 화면에서 점수 알약이 찌그러지지 않게)
+  $('col').style.width = Math.max(cssW, Math.min(innerWidth - 16, 360)) + 'px';
 }
 addEventListener('resize', fit);
 

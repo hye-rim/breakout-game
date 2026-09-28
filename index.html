@@ -48,7 +48,7 @@
     #hud .item { padding:2px 9px; }
     #hud button { width:32px; height:32px; font-size:13px; }
   }
-  #wrap { position:relative; }
+  #wrap { position:relative; width:fit-content; margin:0 auto; }   /* 점수판 칸이 판보다 넓을 때 판을 가운데로 */
   #game {
     display:block;
     border-radius:20px;
@@ -64,6 +64,15 @@
     border-radius:20px;
     backdrop-filter:blur(3px);
     overflow-y:auto;
+    touch-action:pan-y;
+  }
+  /* 세로가 짧은 폰(로비 안에서 열면 더 짧다): 설명 화면을 촘촘하게 */
+  @media (max-height:700px) {
+    #overlay { gap:8px; padding:12px; }
+    #overlay h1 { font-size:34px; }
+    #overlay p { font-size:13px; line-height:1.45; }
+    #overlay .legend, #overlay .help { font-size:12px; padding:7px 10px; line-height:1.55; }
+    #overlay button { font-size:19px; padding:8px 30px; margin-top:0; }
   }
   #overlay.hidden { display:none; }
   #overlay h1, .inked {
@@ -96,6 +105,8 @@
     border:2px solid var(--ink); color:#fff; font-style:normal; font-size:10px;
     paint-order:stroke fill; -webkit-text-stroke:2px var(--ink);
   }
+  /* 폭이 좁으면 아이템 설명을 3열 → 2열로 (위 기본 규칙보다 뒤에 있어야 이긴다) */
+  @media (max-width:420px) { #overlay .legend { grid-template-columns:repeat(2, auto); } }
 </style>
 </head>
 <body>
@@ -118,6 +129,7 @@
       <div id="overlay">
         <h1>벽돌깨기</h1>
         <p>공을 튕겨서 벽돌을 <b>모두</b> 깨세요!<br>떨어지는 캡슐을 받으면 특별한 힘이 생겨요 ✨</p>
+        <button id="startBtn">시작하기</button>
         <div class="legend">
           <span><i style="background:#3fa7ff">W</i>넓은 막대</span>
           <span><i style="background:#b066ff">M</i>공 3개</span>
@@ -132,7 +144,6 @@
           ⌨️ ← → 이동 · Space 발사<br>
           회색·금색 벽돌은 여러 번, 철판은 깨지지 않아요
         </div>
-        <button id="startBtn">시작하기</button>
       </div>
     </div>
   </div>
