@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>벽돌깨기</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; }
+  html, body {
+    width:100%; height:100%; overflow:hidden;
+    background:radial-gradient(circle at 50% 20%, #1b2c5e 0%, #0b1233 60%, #040819 100%);
+    font-family:-apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    color:#fff;
+    touch-action:none;
+  }
+  #stage {
+    width:100%; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:8px;
+  }
+  #hud {
+    display:flex; justify-content:space-between; align-items:flex-end; gap:8px;
+    padding:0 4px 6px;
+    font-variant-numeric:tabular-nums;
+  }
+  #hud .item { display:flex; flex-direction:column; line-height:1.1; }
+  #hud .item.mid { align-items:center; }
+  #hud .item.right { align-items:flex-end; }
+  #hud .label { font-size:10px; letter-spacing:.12em; color:#9fb4ff; font-weight:700; }
+  #hud .value { font-size:20px; font-weight:800; }
+  #hud #lives { color:#ff7eb6; }
+  #hud .icons { display:flex; gap:6px; }
+  #hud button {
+    background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2); color:#fff;
+    width:30px; height:30px; border-radius:8px; font-size:14px; cursor:pointer;
+  }
+  #wrap { position:relative; }
+  #game {
+    display:block;
+    border-radius:10px;
+    box-shadow:0 0 0 3px #3a5bd9, 0 0 0 6px #111a44, 0 12px 40px rgba(0,0,0,.6);
+    touch-action:none;
+    cursor:none;
+  }
+  #overlay {
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+    text-align:center; padding:20px;
+    background:rgba(6,10,32,.78);
+    border-radius:10px;
+    backdrop-filter:blur(2px);
+  }
+  #overlay.hidden { display:none; }
+  #overlay h1 { font-size:34px; font-weight:900; letter-spacing:.02em;
+    background:linear-gradient(180deg,#fff 0%,#ffd93d 55%,#ff9f1c 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 3px 0 #6a2a00); }
+  #overlay h2 { font-size:26px; font-weight:900; }
+  #overlay p { font-size:14px; color:#d3dcff; line-height:1.6; }
+  #overlay .big { font-size:18px; font-weight:800; color:#ffd93d; }
+  #overlay .help { font-size:12px; color:#9fb4ff; line-height:1.7; margin-top:4px; }
+  #overlay .legend { display:grid; grid-template-columns:repeat(3, auto); gap:6px 12px; font-size:12px; color:#d3dcff; margin-top:4px; }
+  #overlay .legend span { display:flex; align-items:center; gap:5px; }
+  #overlay .legend i {
+    font-style:normal; font-weight:900; font-size:10px; color:#fff;
+    width:26px; height:12px; line-height:12px; border-radius:6px; text-align:center;
+    box-shadow:inset 0 -2px 0 rgba(0,0,0,.3);
+  }
+  #overlay button {
+    margin-top:8px;
+    background:linear-gradient(180deg,#ffd93d,#ff9f1c);
+    color:#3a1a00; font-weight:900; font-size:17px;
+    border:none; border-radius:999px; padding:12px 34px;
+    box-shadow:0 4px 0 #a55a00; cursor:pointer;
+  }
+  #overlay button:active { transform:translateY(3px); box-shadow:0 1px 0 #a55a00; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="col">
+    <div id="hud">
+      <div class="item"><span class="label">SCORE</span><span class="value" id="score">0</span></div>
+      <div class="item mid"><span class="label">STAGE</span><span class="value" id="stageNo">1</span></div>
+      <div class="item mid"><span class="label">LIFE</span><span class="value" id="lives">♥3</span></div>
+      <div class="item right">
+        <span class="label">BEST</span><span class="value" id="best">0</span>
+      </div>
+      <div class="icons">
+        <button id="muteBtn" title="소리 (M)">🔊</button>
+        <button id="pauseBtn" title="일시정지 (P)">⏸</button>
+      </div>
+    </div>
+    <div id="wrap">
+      <canvas id="game"></canvas>
+      <div id="overlay">
+        <h1>벽돌깨기</h1>
+        <p>공을 튕겨서 벽돌을 <b>모두</b> 깨세요!<br>떨어지는 캡슐을 받으면 특별한 힘이 생겨요 ✨</p>
+        <div class="legend">
+          <span><i style="background:#3fa7ff">W</i>넓은 막대</span>
+          <span><i style="background:#b066ff">M</i>공 3개</span>
+          <span><i style="background:#4cd964">S</i>느린 공</span>
+          <span><i style="background:#ff4d6d">L</i>레이저</span>
+          <span><i style="background:#ff9f1c">F</i>불꽃 관통</span>
+          <span><i style="background:#ff7eb6">♥</i>생명 +1</span>
+        </div>
+        <div class="help">
+          🖱️ 마우스로 이동 · 클릭 발사<br>
+          📱 아무 데나 드래그로 이동 · 손을 떼면 발사<br>
+          ⌨️ ← → 이동 · Space 발사<br>
+          회색·금색 벽돌은 여러 번, 철판은 깨지지 않아요
+        </div>
+        <button id="startBtn">시작하기</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="game.js"></script>
+</body>
+</html>
