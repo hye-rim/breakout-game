@@ -739,7 +739,7 @@ function draw() {
     ctx.save();
     ctx.translate(W / 2, PAD_Y - 60);
     ctx.scale(s, s);
-    label('클릭 · 탭 · Space 로 발사!', 0, 0, 17, '#ffd23f');
+    label(matchMedia('(pointer: coarse)').matches ? '손을 떼면 발사!' : '클릭 · Space 로 발사!', 0, 0, 17, '#ffd23f');
     ctx.restore();
   }
   ctx.restore();

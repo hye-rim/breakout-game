@@ -115,6 +115,9 @@
   }
   /* 폭이 좁으면 아이템 설명을 3열 → 2열로 (위 기본 규칙보다 뒤에 있어야 이긴다) */
   @media (max-width:420px) { #overlay .legend { grid-template-columns:repeat(2, auto); } }
+  /* 기기에 맞는 설명만: 폰(손가락)은 .touch, PC(마우스·키보드)는 .pc */
+  .pc { display:none; }
+  @media (pointer:fine) { .pc { display:inline; } .touch { display:none; } }
 </style>
 </head>
 <body>
@@ -147,9 +150,8 @@
           <span><i style="background:#ff7eb6">♥</i>생명 +1</span>
         </div>
         <div class="help">
-          🖱️ 마우스로 이동 · 클릭 발사<br>
-          📱 아무 데나 드래그로 이동 · 손을 떼면 발사<br>
-          ⌨️ ← → 이동 · Space 발사<br>
+          <span class="pc">🖱️ 마우스로 이동 · 클릭 발사<br>⌨️ ← → 이동 · Space 발사<br></span>
+          <span class="touch">👆 아무 데나 끌어서 이동 · 손을 떼면 발사<br></span>
           회색·금색 벽돌은 여러 번, 철판은 깨지지 않아요
         </div>
       </div>
