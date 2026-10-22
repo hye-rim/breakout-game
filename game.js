@@ -1,6 +1,12 @@
 'use strict';
 // 오락실 튜토리얼이 '진짜로 일어난 일'을 알아채는 신호 (arcade/public/tutorial.js 가 듣는다. 튜토리얼이 아니면 아무도 안 듣는다)
 const tutorialSignal = (type) => window.dispatchEvent(new CustomEvent('arcade:tutorial', { detail: { type } }));
+// 움직임 신호: 위치가 바뀐 거리가 step 이상 쌓일 때마다 'move' (방향키·터치·마우스로 실제로 움직였는지)
+let tutorialLast = null, tutorialDist = 0;
+function tutorialMoved(x, y, step) {
+  if (tutorialLast) { tutorialDist += Math.abs(x - tutorialLast[0]) + Math.abs(y - tutorialLast[1]); if (tutorialDist >= step) { tutorialDist = 0; tutorialSignal('move'); } }
+  tutorialLast = [x, y];
+}
 
 // 벽돌 깨기: 화면·입력·소리. 규칙(벽돌·공·아이템·목숨·스테이지)은 logic.js (LOGIC_BREAKOUT) 에 있고,
 // 여기서는 규칙이 남긴 st.events 를 보고 소리·파편·글씨·안내창을 만든다.
@@ -186,6 +192,7 @@ function stageClear(bonus) {
 function update(dt) {
   if (state === 'play') {
     L.update(G, dt, { left: keys.ArrowLeft || keys.KeyA, right: keys.ArrowRight || keys.KeyD });
+    tutorialMoved(G.paddle.x, 0, 25);
     for (const b of G.balls) {
       let t = trails.get(b);
       if (!t) trails.set(b, (t = []));
