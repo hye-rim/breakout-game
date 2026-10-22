@@ -1,4 +1,6 @@
 'use strict';
+// 오락실 튜토리얼이 '진짜로 일어난 일'을 알아채는 신호 (arcade/public/tutorial.js 가 듣는다. 튜토리얼이 아니면 아무도 안 듣는다)
+const tutorialSignal = (type) => window.dispatchEvent(new CustomEvent('arcade:tutorial', { detail: { type } }));
 
 // 벽돌 깨기: 화면·입력·소리. 규칙(벽돌·공·아이템·목숨·스테이지)은 logic.js (LOGIC_BREAKOUT) 에 있고,
 // 여기서는 규칙이 남긴 st.events 를 보고 소리·파편·글씨·안내창을 만든다.
@@ -127,6 +129,7 @@ function launch() {
 function handleEvents() {
   if (!G.events.length) return;
   for (const e of G.events.splice(0)) {
+    tutorialSignal(e.type);
     if (e.type === 'launch') sfx.launch();
     else if (e.type === 'wall') sfx.wall();
     else if (e.type === 'paddle') sfx.paddle();
